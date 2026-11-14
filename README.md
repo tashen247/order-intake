@@ -60,7 +60,7 @@ npm test -- --watch=false
 search, and how the order form reports each kind of server response.
 
 Both suites, plus the Angular production build, run on every push via GitHub Actions
-(`.github/workflows/ci.yml`). `global.json` sets .NET SDK 8.0 as the minimum and allows newer SDKs.
+(`.github/workflows/ci.yml`).
 
 ## API at a glance
 
