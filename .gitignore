@@ -1,0 +1,15 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+
+# Node / Angular (see also web/.gitignore)
+node_modules/
+web/dist/
+web/.angular/
+
+.DS_Store
+*.lutconfig
+.idea/
