@@ -1,0 +1,106 @@
+<section class="card">
+  <header class="card-head">
+    <h2>New order</h2>
+    <button type="button" class="link" (click)="fillSample()">Fill sample</button>
+  </header>
+
+  @if (banner(); as b) {
+    <div class="banner {{ b.kind }}" role="status">
+      <strong>{{ b.title }}</strong>
+      @if (b.detail) { <span>{{ b.detail }}</span> }
+      @if ((b.kind === 'success' || b.kind === 'info') && lastRequest()) {
+        <button type="button" class="link" (click)="resubmitLast()" [disabled]="submitting()">
+          Submit {{ lastRequest()!.externalReference }} again (simulate a retry)
+        </button>
+      }
+      @if (b.existingOrderId) {
+        <button type="button" class="link" (click)="openOrder.emit(b.existingOrderId)">Open existing order</button>
+      }
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate autocomplete="off">
+    <div class="grid two">
+      <label>
+        Reference (PO number)
+        <input formControlName="externalReference" placeholder="PO-1001" autocomplete="off" />
+        @if (form.controls.externalReference.touched && form.controls.externalReference.invalid) {
+          <small class="err">Required. Letters, digits and - _ . / # only.</small>
+        }
+        @if (fieldError('externalReference'); as e) { <small class="err">{{ e }}</small> }
+      </label>
+      <label>
+        Currency
+        <select formControlName="currency">
+          @for (c of currencies; track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+      </label>
+    </div>
+
+    <div class="grid three" formGroupName="customer">
+      <label>
+        Customer ID
+        <input formControlName="id" placeholder="CUST-0042" autocomplete="off" />
+        @if (form.controls.customer.controls.id.touched && form.controls.customer.controls.id.invalid) {
+          <small class="err">Required. Letters, digits and - _ . only.</small>
+        }
+        @if (fieldError('customer.id'); as e) { <small class="err">{{ e }}</small> }
+      </label>
+      <label>
+        Customer name
+        <input formControlName="name" />
+        @if (form.controls.customer.controls.name.touched && form.controls.customer.controls.name.invalid) {
+          <small class="err">Required.</small>
+        }
+        @if (fieldError('customer.name'); as e) { <small class="err">{{ e }}</small> }
+      </label>
+      <label>
+        Customer email
+        <input formControlName="email" type="email" />
+        @if (form.controls.customer.controls.email.touched && form.controls.customer.controls.email.invalid) {
+          <small class="err">Enter a valid email.</small>
+        }
+        @if (fieldError('customer.email'); as e) { <small class="err">{{ e }}</small> }
+      </label>
+    </div>
+
+    <fieldset formArrayName="items">
+      <legend>Line items</legend>
+      <div class="items-head">
+        <span>SKU</span><span>Name</span><span class="num">Qty</span><span class="num">Unit price</span><span class="num">Line total</span><span></span>
+      </div>
+      @for (item of items.controls; track item; let i = $index) {
+        <div class="item-row" [formGroupName]="i">
+          <input formControlName="sku" placeholder="SKU" aria-label="SKU" />
+          <input formControlName="name" placeholder="Item name" aria-label="Item name" />
+          <input formControlName="quantity" type="number" min="1" step="1" class="num" aria-label="Quantity" />
+          <input formControlName="unitPrice" type="number" min="0" step="0.01" class="num" aria-label="Unit price" />
+          <span class="num muted">{{ lineTotal(i) | currency: form.controls.currency.value : 'symbol-narrow' }}</span>
+          <button type="button" class="icon" (click)="removeItem(i)" [disabled]="items.length === 1" aria-label="Remove line">×</button>
+        </div>
+        @if (item.touched && item.invalid) {
+          <small class="err row-err">SKU and name are required, quantity must be a whole number of 1 or more, price 0 or more.</small>
+        }
+        @for (f of ['sku', 'name', 'quantity', 'unitPrice']; track f) {
+          @if (fieldError('items[' + i + '].' + f); as e) { <small class="err row-err">{{ e }}</small> }
+        }
+      }
+      <button type="button" class="link" (click)="addItem()">+ Add line</button>
+    </fieldset>
+
+    <label>
+      Notes
+      <textarea formControlName="notes" rows="2"></textarea>
+    </label>
+
+    <footer class="form-foot">
+      <span class="muted">
+        Estimated total <strong>{{ estimate() | currency: form.controls.currency.value : 'symbol-narrow' }}</strong>
+        <small>(final totals are calculated by the server)</small>
+      </span>
+      <button type="submit" class="primary" [disabled]="submitting()">
+        {{ submitting() ? 'Submitting…' : 'Submit order' }}
+      </button>
+    </footer>
+  </form>
+</section>
