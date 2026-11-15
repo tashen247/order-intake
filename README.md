@@ -76,21 +76,23 @@ for validation failures and a stable `code` for the others.
 
 ### Example
 
-```bash
-curl -i -X POST http://localhost:5080/api/orders \
-  -H "Content-Type: application/json" \
-  -d '{
-    "externalReference": "PO-1001",
-    "customer": { "id": "CUST-0042", "email": "buyer@acme.co.za", "name": "Acme Trading" },
-    "currency": "ZAR",
-    "items": [
-      { "sku": "SKU-A", "name": "Widget", "quantity": 3, "unitPrice": 19.99 },
-      { "sku": "SKU-B", "name": "Gadget", "quantity": 1, "unitPrice": 250 }
-    ]
-  }'
+```powershell
+$body = @{
+  externalReference = "PO-1001"
+  customer = @{ id = "CUST-0042"; email = "buyer@acme.co.za"; name = "Acme Trading" }
+  currency = "ZAR"
+  items = @(
+    @{ sku = "SKU-A"; name = "Widget"; quantity = 3; unitPrice = 19.99 },
+    @{ sku = "SKU-B"; name = "Gadget"; quantity = 1; unitPrice = 250 }
+  )
+} | ConvertTo-Json -Depth 5
+
+Invoke-WebRequest -Uri http://localhost:5080/api/orders -Method Post `
+  -ContentType "application/json" -Body $body |
+  Select-Object StatusCode, @{n="Replayed";e={$_.Headers["Idempotent-Replayed"]}}
 ```
 
-Run it twice: the first call returns `201`, the second `200` with the same order id.
+Run it twice in PowerShell: the first call returns `201`, the second `200` with `Replayed` = `true` and the same order.
 
 ## Project layout
 
