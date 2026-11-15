@@ -8,7 +8,7 @@ Resubmitting an order with the same client reference never creates a duplicate.
 
 See [SOLUTION.md](SOLUTION.md) for the design and the trade-offs.
 
-**Video walkthrough:** _link to be added_
+**Video walkthrough** (two parts): [Part 1](https://www.loom.com/share/770af2b660d14c47ab8ccd5788d8fb9e) · [Part 2](https://www.loom.com/share/6d8da4aee79d4fafbe48fcd2e3185157)
 
 ## Prerequisites
 

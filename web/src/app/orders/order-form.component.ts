@@ -104,16 +104,13 @@ export class OrderFormComponent {
   /** Handy for the demo: a realistic order with a fresh reference. */
   fillSample(): void {
     const n = Math.floor(1000 + Math.random() * 9000);
-    this.items.clear();
-    [
+    const lines = [
       { sku: 'LAP-14-PRO', name: 'Laptop 14" Pro', quantity: 2, unitPrice: 18999.99 },
       { sku: 'DOCK-USB-C', name: 'USB-C Dock', quantity: 2, unitPrice: 1499.5 },
       { sku: 'WARR-3Y', name: '3-year warranty', quantity: 2, unitPrice: 0 },
-    ].forEach((i) => {
-      const g = this.newItem();
-      g.setValue(i);
-      this.items.push(g);
-    });
+    ];
+    this.resizeItems(lines.length);
+    lines.forEach((line, i) => this.items.at(i).setValue(line));
     this.form.patchValue({
       externalReference: `PO-${n}`,
       customer: { id: 'CUST-0042', name: 'Acme Trading (Pty) Ltd', email: 'procurement@acme.co.za' },
@@ -192,8 +189,17 @@ export class OrderFormComponent {
   }
 
   private resetForm(): void {
-    this.items.clear();
-    this.items.push(this.newItem());
+    this.resizeItems(1);
     this.form.reset({ currency: 'ZAR' });
+  }
+
+  /**
+   * Grows or shrinks the line-item array to `count` rows, keeping the existing row objects.
+   * Replacing rows would make the @for loop (which tracks rows by identity) destroy and
+   * rebuild their DOM, so rows are reused and only their values change.
+   */
+  private resizeItems(count: number): void {
+    while (this.items.length > count) this.items.removeAt(this.items.length - 1);
+    while (this.items.length < count) this.items.push(this.newItem());
   }
 }
