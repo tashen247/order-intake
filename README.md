@@ -88,7 +88,7 @@ $body = @{
 } | ConvertTo-Json -Depth 5
 
 Invoke-WebRequest -Uri http://localhost:5080/api/orders -Method Post `
-  -ContentType "application/json" -Body $body |
+  -ContentType "application/json" -Body $body -UseBasicParsing |
   Select-Object StatusCode, @{n="Replayed";e={$_.Headers["Idempotent-Replayed"]}}
 ```
 
